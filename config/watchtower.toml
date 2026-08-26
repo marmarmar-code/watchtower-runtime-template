@@ -102,9 +102,9 @@ kind = "brreg"
 label = "Brønnøysundregistrene"
 enabled = false
 alert_on_update = true
-# Replace with one or more 9-digit organisation numbers before enabling.
+# Replace with one or more valid 9-digit organisation numbers before enabling.
 companies = [
-  "999999999",
+  "REPLACE_ME_ORGNR_1",
 ]
 events = [
   "annual_accounts",
