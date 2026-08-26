@@ -3,11 +3,11 @@ max_seen_per_source = 3000
 
 [notifications]
 # Teams is the default for new installations created from this template.
-# Change to "slack" only if your newsroom uses Slack instead.
+# Change to "slack" only if this installation uses Slack instead.
 provider = "teams"
 
-# Replace the placeholder values below with your own newsroom's monitoring terms.
-# Keep this runtime private once you add real watchlists or editorial priorities.
+# Replace the placeholder values below with the terms required by this installation.
+# Keep the runtime private once real watchlists or priorities are added.
 
 [[source]]
 id = "regjeringen"
@@ -103,19 +103,18 @@ kind = "brreg"
 label = "Brønnøysundregistrene"
 enabled = false
 alert_on_update = true
-# Replace with the 9-digit organisation numbers your newsroom wants to follow.
+# Replace with the 9-digit organisation numbers to monitor.
 companies = [
   "999999999",
 ]
-# Supported in the initial Watchtower BRREG adapter.
 events = [
   "annual_accounts",
   "company",
   "roles",
 ]
 [source.filter]
-# Include the same organisation numbers so alerts for monitored companies pass the
-# generic Watchtower filter. You may also include company names if desired.
+# Include the same organisation numbers so alerts pass the generic Watchtower filter.
+# Company names may also be included.
 include_any = [
   "999999999",
 ]
