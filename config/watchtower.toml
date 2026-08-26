@@ -2,18 +2,17 @@
 max_seen_per_source = 3000
 
 [notifications]
-# Teams is the default for new installations created from this template.
-# Change to "slack" only if this installation uses Slack instead.
+# Teams is the default. Change to "slack" only when required.
 provider = "teams"
 
-# Replace the placeholder values below with the terms required by this installation.
-# Keep the runtime private once real watchlists or priorities are added.
+# All sources are disabled until placeholder values have been replaced.
+# An enabled source containing REPLACE_ME will fail validation instead of running silently.
 
 [[source]]
 id = "regjeringen"
 kind = "regjeringen"
 label = "Regjeringen"
-enabled = true
+enabled = false
 alert_on_update = true
 [source.filter]
 include_any = [
@@ -26,7 +25,7 @@ exclude_any = []
 id = "stortinget"
 kind = "stortinget"
 label = "Stortinget"
-enabled = true
+enabled = false
 alert_on_update = false
 datasets = ["saker", "skriftligesporsmal", "horinger"]
 [source.filter]
@@ -54,7 +53,7 @@ kind = "euronext"
 label = "Euronext"
 enabled = false
 alert_on_update = false
-# Add one or more Euronext company-information URLs when enabling this source.
+# Add one or more Euronext company-information URLs before enabling this source.
 urls = []
 [source.filter]
 include_any = [
@@ -103,7 +102,7 @@ kind = "brreg"
 label = "Brønnøysundregistrene"
 enabled = false
 alert_on_update = true
-# Replace with the 9-digit organisation numbers to monitor.
+# Replace with one or more 9-digit organisation numbers before enabling.
 companies = [
   "999999999",
 ]
@@ -113,9 +112,6 @@ events = [
   "roles",
 ]
 [source.filter]
-# Include the same organisation numbers so alerts pass the generic Watchtower filter.
-# Company names may also be included.
-include_any = [
-  "999999999",
-]
+# BRREG already limits results to companies above, so no duplicate filter list is required.
+match_all = true
 exclude_any = []
