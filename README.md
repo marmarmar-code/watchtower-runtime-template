@@ -165,7 +165,7 @@ Kjør workflowen manuelt fra **Actions → Watchtower → Run workflow**.
 
 ### A. `test-notification`
 
-Denne sender et representativt testvarsel med tittel, metadata og lenkeknapp gjennom provideren som er valgt i runtime.
+Denne sender et representativt testvarsel med tittel, endringsdetalj, metadata og lenkeknapp gjennom provideren som er valgt i runtime.
 
 Testen er først godkjent når:
 
@@ -211,12 +211,15 @@ State må forbli privat og versjonert. Ikke slett state for en aktiv kilde uten 
 
 Hver fork velger selv når den synkroniseres med upstream. Hold egne kodeendringer små og isolerte for å redusere konflikter.
 
-Før en upstream-oppdatering tas i bruk:
+Produksjonsworkflowen sjekker med vilje ut kode fra `main`, slik at en utestet branch ikke får tilgang til produksjonssecrets og privat runtime. Oppgrader derfor slik:
 
-1. Synkroniser i en branch.
-2. La CI fullføre.
-3. Kjør `dry-run` mot egen private runtime.
-4. Merge først etter vellykket kontroll.
+1. Synkroniser upstream-endringen i en branch.
+2. La branch-CI fullføre og gjennomgå diffen.
+3. Merge først når CI er grønn.
+4. Kjør `dry-run` manuelt fra `main` umiddelbart etter merge.
+5. Kjør deretter `run` og kontroller state og varsling.
+
+Ved en større oppgradering kan den planlagte workflowen deaktiveres midlertidig mens kontrollene gjennomføres.
 
 ## Anbefalt beskyttelse
 
