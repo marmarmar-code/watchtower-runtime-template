@@ -233,3 +233,9 @@ Beskytt `main` i Watchtower-forken med:
 - blokkering av sletting av branch.
 
 Dette hindrer at en utestet kodeendring får tilgang til produksjonssecrets og privat runtime ved neste planlagte kjøring.
+
+## Lisensstatus
+
+Det er foreløpig ikke lagt inn en programvarelisens for Watchtower. Den offentlige koden og denne malen gir derfor ikke i seg selv generell tillatelse til bruk, endring eller videre distribusjon.
+
+En ny installasjon må ha uttrykkelig tillatelse fra rettighetshaveren fram til rettighetshaver og lisens er formelt avklart.
