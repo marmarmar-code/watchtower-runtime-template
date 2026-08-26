@@ -96,3 +96,27 @@ include_any = [
   "REPLACE_ME_BUYER_OR_TOPIC_1",
 ]
 exclude_any = []
+
+[[source]]
+id = "brreg"
+kind = "brreg"
+label = "Brønnøysundregistrene"
+enabled = false
+alert_on_update = true
+# Replace with the 9-digit organisation numbers your newsroom wants to follow.
+companies = [
+  "999999999",
+]
+# Supported in the initial Watchtower BRREG adapter.
+events = [
+  "annual_accounts",
+  "company",
+  "roles",
+]
+[source.filter]
+# Include the same organisation numbers so alerts for monitored companies pass the
+# generic Watchtower filter. You may also include company names if desired.
+include_any = [
+  "999999999",
+]
+exclude_any = []
