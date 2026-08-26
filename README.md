@@ -1,160 +1,230 @@
 # Watchtower runtime template
 
-Private runtime template for [Watchtower](https://github.com/marmarmar-code/watchtower).
+Privat konfigurasjons- og state-repository for [Watchtower](https://github.com/marmarmar-code/watchtower).
 
-This repository is configuration and state only. It contains no Watchtower program code and must never contain secrets.
+Dette repositoryet inneholder ingen programkode. Det skal heller aldri inneholde webhook-adresser, API-nøkler, tilgangstokener eller private nøkler.
 
-## Structure
+## Ansvarsdeling
 
-- A Watchtower fork contains program code, source adapters, tests and the GitHub Actions workflow.
-- A private runtime created from this template contains watchlists, filters and persisted state.
-- Credentials and notification endpoints belong in GitHub Actions secrets in the Watchtower fork.
+En installasjon består av to repositoryer:
 
-Each installation owns and operates its own fork and runtime. Configuration changes belong in the private runtime. Technical changes belong in that installation's Watchtower fork.
+```text
+<organisasjon>/watchtower           offentlig fork med programkode og workflow
+<organisasjon>/watchtower-runtime   privat konfigurasjon og state
+```
 
-## Setup
+Hver installasjon eier og drifter sin egen fork, runtime, konfigurasjon og secrets. Det følger ingen sentral driftsgaranti eller plikt til å utvikle særtilpasninger. Generelle forbedringer kan foreslås som pull requests til upstream-repositoryet.
 
-### 1. Create a private runtime
+## 1. Opprett privat runtime
 
-Use **Use this template** to create a new private repository, for example:
+Velg **Use this template** og opprett:
 
-`your-org/watchtower-runtime`
+```text
+<organisasjon>/watchtower-runtime
+```
 
-Do not fork this template. A template creates a clean history.
+Sett repositoryet til **Private**. Ikke bruk vanlig fork av denne malen; en template gir en ren historikk.
 
-### 2. Fork Watchtower
+Standardnavnet `watchtower-runtime` gjør at Watchtower finner runtime automatisk når begge repositoryene har samme eier.
+
+Brukes et annet navn eller en annen eier, opprett denne Actions-variabelen i Watchtower-forken:
+
+```text
+WATCHTOWER_RUNTIME_REPOSITORY=<eier>/<runtime-repository>
+```
+
+En annen runtime-branch kan eventuelt angis med:
+
+```text
+WATCHTOWER_RUNTIME_REF=<branch>
+```
+
+Det er ikke nødvendig å redigere workflow-filen.
+
+## 2. Fork Watchtower
 
 Fork:
 
-`marmarmar-code/watchtower`
-
-into the account or organisation that will operate it, for example:
-
-`your-org/watchtower`
-
-### 3. Point the fork to the private runtime
-
-In the Watchtower fork, open:
-
-`.github/workflows/monitor.yml`
-
-Replace:
-
-```yaml
-repository: marmarmar-code/watchtower-runtime
+```text
+marmarmar-code/watchtower
 ```
 
-with the private runtime repository, for example:
+til kontoen eller organisasjonen som skal kjøre installasjonen.
 
-```yaml
-repository: your-org/watchtower-runtime
+Åpne deretter fanen **Actions** i forken og aktiver workflows dersom GitHub ber om det. Planlagte workflows i nye forker kan være deaktivert til dette er gjort.
+
+## 3. Opprett avgrenset deploy key
+
+Lag et eget SSH-nøkkelpar på en maskin du kontrollerer:
+
+```bash
+ssh-keygen -t ed25519 \
+  -C "watchtower-runtime" \
+  -f watchtower-runtime-key \
+  -N ""
 ```
 
-### 4. Configure runtime access
+Dette lager:
 
-The workflow uses an SSH deploy key to read and update the private runtime.
+```text
+watchtower-runtime-key.pub   offentlig nøkkel
+watchtower-runtime-key       privat nøkkel
+```
 
-Create one SSH key pair for the installation. Add the public key to the private runtime under:
+I det private runtime-repositoryet:
 
-**Settings → Deploy keys → Add deploy key**
+1. Gå til **Settings → Deploy keys → Add deploy key**.
+2. Lim inn innholdet fra `watchtower-runtime-key.pub`.
+3. Aktiver **Allow write access**. Watchtower må kunne oppdatere `state/`.
 
-Enable **Allow write access** so Watchtower can persist state.
+I den offentlige Watchtower-forken:
 
-Add the private key to the Watchtower fork under:
+1. Gå til **Settings → Secrets and variables → Actions → Secrets**.
+2. Opprett secret `RUNTIME_DEPLOY_KEY`.
+3. Lim inn hele innholdet fra den private filen `watchtower-runtime-key`.
+4. Slett nøkkelfilene lokalt når oppsettet er verifisert, eller oppbevar dem sikkert dersom de skal kunne roteres senere.
 
-**Settings → Secrets and variables → Actions → New repository secret**
+Ikke gjenbruk denne deploy key-en til andre repositoryer.
 
-Name it:
+## 4. Konfigurer varsling
 
-`RUNTIME_DEPLOY_KEY`
-
-Never commit private keys or webhook URLs.
-
-### 5. Configure notifications
-
-Microsoft Teams is the default in this template.
-
-Add a Teams Workflow webhook to the Watchtower fork as this GitHub Actions secret:
-
-`TEAMS_WEBHOOK_URL`
-
-For Slack, change `provider = "teams"` to `provider = "slack"` in `config/watchtower.toml` and add:
-
-`SLACK_WEBHOOK_URL`
-
-### 6. Optional API keys
-
-Some adapters require credentials. Store them as GitHub Actions secrets in the Watchtower fork, never in the runtime.
-
-Doffin uses:
-
-`DOFFIN_API_KEY`
-
-### 7. Configure sources
-
-Edit:
-
-`config/watchtower.toml`
-
-Replace placeholder values and enable only the required sources. Do not put passwords, API keys, webhooks, tokens or private keys in the TOML file.
-
-### 8. Test
-
-Run the Watchtower workflow manually from GitHub Actions.
-
-Recommended order:
-
-1. `test-notification`
-2. `dry-run`
-3. `run`
-
-A newly enabled source establishes a silent baseline on its first normal run. Later runs alert only on new or updated items that match the configured rules.
-
-## Notification provider
-
-Default:
+Microsoft Teams er standard i denne malen:
 
 ```toml
 [notifications]
 provider = "teams"
 ```
 
-Slack:
+Opprett en Teams Workflow med webhook-trigger for ønsket kanal. Legg webhook-adressen i Watchtower-forken som GitHub Actions-secret:
+
+```text
+TEAMS_WEBHOOK_URL
+```
+
+For Slack, endre runtime-konfigurasjonen til:
 
 ```toml
 [notifications]
 provider = "slack"
 ```
 
-## Source types
+og opprett:
 
-The upstream project includes adapters for:
+```text
+SLACK_WEBHOOK_URL
+```
 
-- `regjeringen`
-- `stortinget`
-- `konkurransetilsynet`
-- `euronext`
-- `doffin`
-- `hoyesterett`
-- `brreg`
+Webhook-adressen skal aldri limes inn i `config/watchtower.toml`.
 
-The Watchtower fork determines which source types are available. The runtime determines how those sources are configured.
+## 5. Konfigurer kilder
 
-## Changes
+Rediger:
 
-If a source is already supported and only terms, organisations, filters or options change, edit the runtime.
+```text
+config/watchtower.toml
+```
 
-A new technical source type belongs in the Watchtower fork. General changes can optionally be contributed upstream.
+Alle eksempelkilder er deaktivert. For hver kilde som skal brukes:
 
-## Security
+1. Erstatt alle relevante `REPLACE_ME`-verdier.
+2. Kontroller kilde-spesifikke innstillinger.
+3. Sett `enabled = true`.
 
-- Keep production runtimes private.
-- Never commit webhook URLs, API keys, access tokens or private keys.
-- Keep credentials in GitHub Actions secrets.
-- Do not copy another installation's production runtime.
-- `state/` is runtime data written by Watchtower and should normally remain tracked.
-- Review configuration before changing repository visibility.
+En aktiv kilde med gjenværende `REPLACE_ME` blir avvist av valideringen. En aktiv kilde må også ha positive filterregler, eller eksplisitt:
 
-## Updating Watchtower
+```toml
+[source.filter]
+match_all = true
+```
 
-Each fork is independent. Its operator decides when to sync upstream changes and is responsible for compatibility with any local modifications.
+`match_all` bør bare brukes når adapteren allerede er begrenset av en konkret liste, slik som BRREGs `companies`.
+
+### Kildetyper
+
+```text
+regjeringen
+stortinget
+konkurransetilsynet
+euronext
+doffin
+hoyesterett
+brreg
+```
+
+Doffin krever Actions-secret:
+
+```text
+DOFFIN_API_KEY
+```
+
+BRREG krever ingen API-nøkkel. Legg organisasjonsnumrene i `companies` og velg hendelser gjennom `events`.
+
+## 6. Verifiser oppsettet
+
+Kjør workflowen manuelt fra **Actions → Watchtower → Run workflow**.
+
+### A. `test-notification`
+
+Denne sender et representativt testvarsel med tittel, metadata og lenkeknapp gjennom provideren som er valgt i runtime.
+
+Testen er først godkjent når:
+
+- meldingen faktisk vises i valgt kanal;
+- lenken kan åpnes;
+- ved Teams viser den tilhørende Workflow-kjøringen `Succeeded`.
+
+En grønn GitHub-jobb alene er ikke tilstrekkelig dersom meldingen ikke vises.
+
+### B. `dry-run`
+
+Denne validerer runtime og henter aktive kilder uten å sende ordinære varsler eller skrive ny state.
+
+Godkjenn bare kjøringen dersom alle aktive kilder fullfører uten feil.
+
+### C. `run`
+
+Første ordinære kjøring etablerer en stille baseline. Det skal normalt ikke komme kildevarsler. Workflowen skal committe JSON-state til `state/` i det private repositoryet.
+
+Kontroller:
+
+- at workflowen er grønn;
+- at `state/` inneholder filer for de aktive kildene;
+- at committen er skrevet av `watchtower[bot]`;
+- at neste uendrede kjøring ikke sender varsler.
+
+## 7. Normal drift
+
+Standardworkflowen kjører hver time på minutt `:23`. Tidsplanen kan endres i den enkelte fork.
+
+State må forbli privat og versjonert. Ikke slett state for en aktiv kilde uten å forstå at neste ordinære kjøring da oppretter en ny stille baseline.
+
+## Sikkerhetsregler
+
+- Produksjonsruntime skal være privat.
+- Secrets skal bare ligge i GitHub Actions Secrets.
+- Ikke commit `.env`, private nøkler, sertifikater eller webhook-adresser.
+- Ikke kopier state eller konfigurasjon fra en annen installasjon.
+- Kontroller repositoryets synlighet før reelle overvåkingsverdier legges inn.
+- Roter straks en credential som ved en feil er publisert; sletting av filen alene er ikke tilstrekkelig.
+
+## Oppdatering av fork
+
+Hver fork velger selv når den synkroniseres med upstream. Hold egne kodeendringer små og isolerte for å redusere konflikter.
+
+Før en upstream-oppdatering tas i bruk:
+
+1. Synkroniser i en branch.
+2. La CI fullføre.
+3. Kjør `dry-run` mot egen private runtime.
+4. Merge først etter vellykket kontroll.
+
+## Anbefalt beskyttelse
+
+Beskytt `main` i Watchtower-forken med:
+
+- pull request før merge;
+- grønn CI som krav;
+- blokkering av force push;
+- blokkering av sletting av branch.
+
+Dette hindrer at en utestet kodeendring får tilgang til produksjonssecrets og privat runtime ved neste planlagte kjøring.
