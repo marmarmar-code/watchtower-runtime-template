@@ -8,10 +8,12 @@
 __pycache__/
 *.pyc
 
-# Secrets and local env files must never be committed
+# Secrets and local environment files must never be committed
 .env
 .env.*
 *.pem
 *.key
 *.p12
 *.pfx
+watchtower-runtime-key
+watchtower-runtime-key.pub
