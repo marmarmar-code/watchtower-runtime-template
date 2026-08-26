@@ -1,0 +1,17 @@
+# Local/editor files
+.DS_Store
+.vscode/
+.idea/
+
+# Python/local tooling
+.venv/
+__pycache__/
+*.pyc
+
+# Secrets and local env files must never be committed
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
