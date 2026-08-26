@@ -130,6 +130,8 @@ Alle eksempelkilder er deaktivert. For hver kilde som skal brukes:
 2. Kontroller kilde-spesifikke innstillinger.
 3. Sett `enabled = true`.
 
+Minst én kilde må være aktiv før `dry-run` eller ordinær `run`. Watchtower avviser en overvåkingskjøring uten aktive kilder, slik at et uferdig oppsett ikke ser vellykket ut.
+
 En aktiv kilde med gjenværende `REPLACE_ME` blir avvist av valideringen. En aktiv kilde må også ha positive filterregler, eller eksplisitt:
 
 ```toml
