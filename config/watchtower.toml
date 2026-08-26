@@ -1,0 +1,98 @@
+[general]
+max_seen_per_source = 3000
+
+[notifications]
+# Teams is the default for new installations created from this template.
+# Change to "slack" only if your newsroom uses Slack instead.
+provider = "teams"
+
+# Replace the placeholder values below with your own newsroom's monitoring terms.
+# Keep this runtime private once you add real watchlists or editorial priorities.
+
+[[source]]
+id = "regjeringen"
+kind = "regjeringen"
+label = "Regjeringen"
+enabled = true
+alert_on_update = true
+[source.filter]
+include_any = [
+  "REPLACE_ME_TOPIC_1",
+  "REPLACE_ME_ORGANISATION_1",
+]
+exclude_any = []
+
+[[source]]
+id = "stortinget"
+kind = "stortinget"
+label = "Stortinget"
+enabled = true
+alert_on_update = false
+datasets = ["saker", "skriftligesporsmal", "horinger"]
+[source.filter]
+include_any = [
+  "REPLACE_ME_TOPIC_1",
+  "REPLACE_ME_PERSON_1",
+]
+exclude_any = []
+
+[[source]]
+id = "konkurransetilsynet"
+kind = "konkurransetilsynet"
+label = "Konkurransetilsynet"
+enabled = false
+alert_on_update = true
+[source.filter]
+include_any = [
+  "REPLACE_ME_COMPANY_1",
+]
+exclude_any = []
+
+[[source]]
+id = "euronext"
+kind = "euronext"
+label = "Euronext"
+enabled = false
+alert_on_update = false
+# Add one or more Euronext company-information URLs when enabling this source.
+urls = []
+[source.filter]
+include_any = [
+  "REPLACE_ME_COMPANY_1",
+]
+exclude_any = [
+  "invitasjon til resultatpresentasjon",
+  "ex. utbytte",
+  "generalforsamling",
+  "finansiell kalender",
+]
+
+[[source]]
+id = "hoyesterett"
+kind = "hoyesterett"
+label = "Høyesterett"
+enabled = false
+alert_on_update = false
+max_items = 80
+[source.filter]
+include_any = [
+  "REPLACE_ME_LEGAL_TOPIC_1",
+]
+exclude_any = []
+
+[[source]]
+id = "doffin"
+kind = "doffin"
+label = "Doffin"
+enabled = false
+alert_on_update = true
+page_size = 100
+max_pages = 1
+search_queries = [
+  "REPLACE_ME_BUYER_OR_TOPIC_1",
+]
+[source.filter]
+include_any = [
+  "REPLACE_ME_BUYER_OR_TOPIC_1",
+]
+exclude_any = []
