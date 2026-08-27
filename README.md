@@ -15,13 +15,11 @@ En installasjon består av to repositoryer:
 
 Hver installasjon eier og drifter sin egen fork, runtime, konfigurasjon og secrets. Det følger ingen sentral driftsgaranti eller plikt til å utvikle særtilpasninger. Generelle forbedringer kan foreslås som pull requests til upstream-repositoryet.
 
-## Kom raskt i gang
+## Start her
 
-1. Opprett et privat repository fra malen med navnet `watchtower-runtime`.
-2. Fork Watchtower til samme konto eller organisasjon, og aktiver Actions.
-3. Følg stegene under for deploy key, varsling og kilder.
+For en ny installasjon, følg først [den samlede startprosedyren i Watchtower](https://github.com/marmarmar-code/watchtower/blob/main/FORKING.md). Den angir riktig rekkefølge fra fork til kontrollert første kjøring. Stegene nedenfor beskriver den private runtime-delen av samme oppsett.
 
-Malen er laget for redaksjoner som vil følge offentlige kilder uten å legge hemmeligheter eller privat state i den offentlige koden. Du trenger bare å fylle inn kildene du faktisk vil følge.
+Malen er laget for organisasjoner og brukere som vil følge offentlige kilder uten å legge hemmeligheter eller privat state i den offentlige koden. Du trenger bare å fylle inn kildene du faktisk vil følge.
 
 ## 1. Opprett privat runtime
 
@@ -184,9 +182,9 @@ Patentstyret krever en gratis abonnementnøkkel fra utviklerportalen. Lagre den 
 PATENTSTYRET_API_KEY
 ```
 
-Patentstyret-adapteren er en prøveversjon til den er kontrollert mot ekte data med en redaksjons egen nøkkel.
+Patentstyret-adapteren er en prøveversjon til den er kontrollert mot ekte data med installasjonens egen nøkkel.
 
-RSS-profiler gjør flere offisielle feeder tilgjengelige uten at redaksjonen må finne og vedlikeholde URL-ene selv. Watchtower leveres med profiler for Politiloggen, Finanstilsynet, Mattilsynet og Norges Banks pressemeldinger. Kommandoen `python -m watchtower list-rss-profiles` viser profilnavnene som kan brukes i konfigurasjonen.
+RSS-profiler gjør flere offisielle feeder tilgjengelige uten at installasjonseieren må finne og vedlikeholde URL-ene selv. Watchtower leveres med profiler for Politiloggen, Finanstilsynet, Mattilsynet og Norges Banks pressemeldinger. Kommandoen `python -m watchtower list-rss-profiles` viser profilnavnene som kan brukes i konfigurasjonen.
 
 SSB krever ingen API-nøkkel. Legg femsifrede tabellnumre i `tables`. Watchtower henter bare den lille tabellbeskrivelsen og varsler om nye perioder eller strukturendringer; den laster ikke ned selve statistikkdataene.
 

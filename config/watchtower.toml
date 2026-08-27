@@ -173,7 +173,7 @@ exclude_any = []
 
 # RSS-profiler bruker URL-er som følger med den offentlige Watchtower-koden.
 # Tilgjengelige profiler vises med: python -m watchtower list-rss-profiles
-# Sett enabled = true først etter at filteret er tilpasset redaksjonens behov.
+# Sett enabled = true først etter at filteret er tilpasset installasjonens behov.
 [[source]]
 id = "politiloggen"
 kind = "rss"
