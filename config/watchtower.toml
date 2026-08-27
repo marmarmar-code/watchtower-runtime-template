@@ -1,6 +1,9 @@
 [general]
 max_seen_per_source = 3000
 
+# Workflowen starter hvert femte minutt. En kilde hentes først når dette
+# intervallet har gått; standarden er 60 minutter og minste tillatte verdi er 5.
+
 [notifications]
 # Teams is the default. Change to "slack" only when required.
 provider = "teams"
@@ -13,6 +16,7 @@ id = "regjeringen"
 kind = "regjeringen"
 label = "Regjeringen"
 enabled = false
+interval_minutes = 60
 alert_on_update = true
 [source.filter]
 include_any = [
@@ -26,6 +30,7 @@ id = "stortinget"
 kind = "stortinget"
 label = "Stortinget"
 enabled = false
+interval_minutes = 60
 alert_on_update = false
 datasets = ["saker", "skriftligesporsmal", "horinger"]
 [source.filter]
@@ -40,6 +45,7 @@ id = "konkurransetilsynet"
 kind = "konkurransetilsynet"
 label = "Konkurransetilsynet"
 enabled = false
+interval_minutes = 60
 alert_on_update = true
 [source.filter]
 include_any = [
@@ -52,6 +58,7 @@ id = "euronext"
 kind = "euronext"
 label = "Euronext"
 enabled = false
+interval_minutes = 60
 alert_on_update = false
 # Add one or more Euronext company-information URLs before enabling this source.
 urls = []
@@ -71,6 +78,7 @@ id = "hoyesterett"
 kind = "hoyesterett"
 label = "Høyesterett"
 enabled = false
+interval_minutes = 60
 alert_on_update = false
 max_items = 80
 [source.filter]
@@ -84,6 +92,7 @@ id = "doffin"
 kind = "doffin"
 label = "Doffin"
 enabled = false
+interval_minutes = 60
 alert_on_update = true
 page_size = 100
 max_pages = 1
@@ -101,6 +110,7 @@ id = "brreg"
 kind = "brreg"
 label = "Brønnøysundregistrene"
 enabled = false
+interval_minutes = 60
 alert_on_update = true
 # Replace with one or more valid 9-digit organisation numbers before enabling.
 companies = [
@@ -113,5 +123,34 @@ events = [
 ]
 [source.filter]
 # BRREG already limits results to companies above, so no duplicate filter list is required.
+match_all = true
+exclude_any = []
+
+# RSS-profiler bruker URL-er som følger med den offentlige Watchtower-koden.
+# Tilgjengelige profiler vises med: python -m watchtower list-rss-profiles
+# Sett enabled = true først etter at filteret er tilpasset redaksjonens behov.
+[[source]]
+id = "politiloggen"
+kind = "rss"
+label = "Politiloggen"
+enabled = false
+interval_minutes = 15
+alert_on_update = true
+profiles = ["politiloggen"]
+[source.filter]
+include_any = ["REPLACE_ME_TOPIC_1"]
+exclude_any = []
+
+# SSB overvåker bare eksplisitt valgte tabellnumre og laster ikke ned tallene.
+[[source]]
+id = "ssb"
+kind = "ssb"
+label = "Statistisk sentralbyrå"
+enabled = false
+interval_minutes = 360
+alert_on_update = true
+tables = ["REPLACE_ME_SSB_TABLE_1"]
+[source.filter]
+# Tabellisten avgrenser kilden, så alle endringer i disse tabellene er relevante.
 match_all = true
 exclude_any = []

@@ -15,6 +15,14 @@ En installasjon består av to repositoryer:
 
 Hver installasjon eier og drifter sin egen fork, runtime, konfigurasjon og secrets. Det følger ingen sentral driftsgaranti eller plikt til å utvikle særtilpasninger. Generelle forbedringer kan foreslås som pull requests til upstream-repositoryet.
 
+## Kom raskt i gang
+
+1. Opprett et privat repository fra malen med navnet `watchtower-runtime`.
+2. Fork Watchtower til samme konto eller organisasjon, og aktiver Actions.
+3. Følg stegene under for deploy key, varsling og kilder.
+
+Malen er laget for redaksjoner som vil følge offentlige kilder uten å legge hemmeligheter eller privat state i den offentlige koden. Du trenger bare å fylle inn kildene du faktisk vil følge.
+
 ## 1. Opprett privat runtime
 
 Velg **Use this template** og opprett:
@@ -151,6 +159,8 @@ euronext
 doffin
 hoyesterett
 brreg
+rss
+ssb
 ```
 
 Doffin krever Actions-secret:
@@ -160,6 +170,10 @@ DOFFIN_API_KEY
 ```
 
 BRREG krever ingen API-nøkkel. Legg organisasjonsnumrene i `companies` og velg hendelser gjennom `events`.
+
+RSS-profiler gjør flere offisielle feeder tilgjengelige uten at redaksjonen må finne og vedlikeholde URL-ene selv. Watchtower leveres med profiler for Politiloggen, Finanstilsynet, Mattilsynet og Norges Banks pressemeldinger. Kommandoen `python -m watchtower list-rss-profiles` viser profilnavnene som kan brukes i konfigurasjonen.
+
+SSB krever ingen API-nøkkel. Legg femsifrede tabellnumre i `tables`. Watchtower henter bare den lille tabellbeskrivelsen og varsler om nye perioder eller strukturendringer; den laster ikke ned selve statistikkdataene.
 
 ## 6. Verifiser oppsettet
 
@@ -196,9 +210,11 @@ Kontroller:
 
 ## 7. Normal drift
 
-Standardworkflowen kjører hver time på minutt `:23`. Tidsplanen kan endres i den enkelte fork.
+Workflowen våkner hvert femte minutt. Den sjekker likevel hver kilde bare når kildeintervallet er utløpt (standard er 60 minutter). Dette gir én felles tidsplan, mens hyppigere eller sjeldnere kilder kan velge sitt eget `interval_minutes` (minimum 5).
 
 State må forbli privat og versjonert. Ikke slett state for en aktiv kilde uten å forstå at neste ordinære kjøring da oppretter en ny stille baseline.
+
+Hver kjøring viser en samlet, anonymisert kildestatus i oppsummeringen på GitHub. Den røper ikke private kilde-ID-er eller filterverdier. Detaljene for den enkelte kilde forblir i den private runtime-en.
 
 ## Sikkerhetsregler
 
