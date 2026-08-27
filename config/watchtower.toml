@@ -120,9 +120,54 @@ events = [
   "annual_accounts",
   "company",
   "roles",
+  # Add "group_structure" for group changes.
+  # Add "registry_updates" for BRREG's detailed public update stream.
 ]
 [source.filter]
 # BRREG already limits results to companies above, so no duplicate filter list is required.
+match_all = true
+exclude_any = []
+
+# Støtteregisteret må avgrenses. Mottakerlisten kan erstattes eller suppleres
+# med provider_orgnrs, industries, regions, from_date eller to_date.
+[[source]]
+id = "stotte"
+kind = "stotte"
+label = "Støtteregisteret"
+enabled = false
+interval_minutes = 360
+alert_on_update = true
+recipient_orgnrs = ["REPLACE_ME_ORGNR_1"]
+page_size = 1000
+max_pages = 5
+[source.filter]
+match_all = true
+exclude_any = []
+
+# Følger siste samlede shortposisjon for eksplisitt valgte verdipapirer.
+[[source]]
+id = "shortsalg"
+kind = "finanstilsynet_short_sale"
+label = "Finanstilsynets shortsalgregister"
+enabled = false
+interval_minutes = 360
+alert_on_update = true
+isins = ["REPLACE_ME_ISIN_1"]
+[source.filter]
+match_all = true
+exclude_any = []
+
+# Krever Actions-secret PATENTSTYRET_API_KEY i den offentlige Watchtower-forken.
+[[source]]
+id = "patentstyret"
+kind = "patentstyret"
+label = "Patentstyret"
+enabled = false
+interval_minutes = 360
+alert_on_update = true
+companies = ["REPLACE_ME_ORGNR_1"]
+kinds = ["Patent", "Trademark", "Design"]
+[source.filter]
 match_all = true
 exclude_any = []
 

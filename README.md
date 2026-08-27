@@ -161,6 +161,9 @@ hoyesterett
 brreg
 rss
 ssb
+stotte
+finanstilsynet_short_sale
+patentstyret
 ```
 
 Doffin krever Actions-secret:
@@ -170,6 +173,18 @@ DOFFIN_API_KEY
 ```
 
 BRREG krever ingen API-nøkkel. Legg organisasjonsnumrene i `companies` og velg hendelser gjennom `events`.
+
+Støtteregisteret krever ingen API-nøkkel. Avgrens til valgte mottakere, støttegivere, næringer, regioner eller datoer før kilden aktiveres.
+
+Finanstilsynets shortsalgregister krever ingen API-nøkkel. Legg inn ISIN-er i `isins`, eller eksakte utstedernavn i `issuers`.
+
+Patentstyret krever en gratis abonnementnøkkel fra utviklerportalen. Lagre den i den offentlige Watchtower-forken som Actions-secret:
+
+```text
+PATENTSTYRET_API_KEY
+```
+
+Patentstyret-adapteren er en prøveversjon til den er kontrollert mot ekte data med en redaksjons egen nøkkel.
 
 RSS-profiler gjør flere offisielle feeder tilgjengelige uten at redaksjonen må finne og vedlikeholde URL-ene selv. Watchtower leveres med profiler for Politiloggen, Finanstilsynet, Mattilsynet og Norges Banks pressemeldinger. Kommandoen `python -m watchtower list-rss-profiles` viser profilnavnene som kan brukes i konfigurasjonen.
 
