@@ -170,6 +170,8 @@ Doffin krever Actions-secret:
 DOFFIN_API_KEY
 ```
 
+Doffin bruker bare det offisielle API-endepunktet; et egendefinert endepunkt kan ikke konfigureres.
+
 BRREG krever ingen API-nøkkel. Legg organisasjonsnumrene i `companies` og velg hendelser gjennom `events`.
 
 Støtteregisteret krever ingen API-nøkkel. Avgrens til valgte mottakere, støttegivere, næringer, regioner eller datoer før kilden aktiveres.
@@ -223,7 +225,9 @@ Kontroller:
 
 ## 7. Normal drift
 
-Workflowen våkner hvert femte minutt. Den sjekker likevel hver kilde bare når kildeintervallet er utløpt (standard er 60 minutter). Dette gir én felles tidsplan, mens hyppigere eller sjeldnere kilder kan velge sitt eget `interval_minutes` (minimum 5).
+Scheduleren starter monitor-workflowen på `main` omtrent hvert femte minutt. GitHubs cron-trigger er en reserve som kan starte schedulerkjeden på nytt. Monitoren sjekker likevel hver kilde bare når kildeintervallet er utløpt (standard er 60 minutter). Dette gir én felles tidsplan, mens hyppigere eller sjeldnere kilder kan velge sitt eget `interval_minutes` (minimum 5).
+
+Kontroller minst én naturlig `schedule`-hendelse før installasjonen regnes som operativ. En scheduler-kjøring som står som kansellert er ikke alene en driftsfeil; kontroller om monitoren ble startet og om en nyere scheduler overtok kjeden.
 
 State må forbli privat og versjonert. Ikke slett state for en aktiv kilde uten å forstå at neste ordinære kjøring da oppretter en ny stille baseline.
 

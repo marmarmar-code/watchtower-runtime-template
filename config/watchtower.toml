@@ -1,8 +1,9 @@
 [general]
 max_seen_per_source = 3000
 
-# Workflowen starter hvert femte minutt. En kilde hentes først når dette
-# intervallet har gått; standarden er 60 minutter og minste tillatte verdi er 5.
+# Scheduleren starter monitor-workflowen omtrent hvert femte minutt. En kilde
+# hentes først når intervallet har gått; standarden er 60 minutter og minste
+# tillatte verdi er 5.
 
 [notifications]
 # Teams is the default. Change to "slack" only when required.
