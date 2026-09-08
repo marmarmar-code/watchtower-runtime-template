@@ -1,274 +1,67 @@
 # Watchtower runtime template
 
-Privat konfigurasjons- og state-repository for [Watchtower](https://github.com/marmarmar-code/watchtower).
-
-Dette repositoryet inneholder ingen programkode. Det skal heller aldri inneholde webhook-adresser, API-nøkler, tilgangstokener eller private nøkler.
-
-## Ansvarsdeling
-
-En installasjon består av to repositoryer:
-
-```text
-<organisasjon>/watchtower           offentlig fork med programkode og workflow
-<organisasjon>/watchtower-runtime   privat konfigurasjon og state
-```
-
-Hver installasjon eier og drifter sin egen fork, runtime, konfigurasjon og secrets. Det følger ingen sentral driftsgaranti eller plikt til å utvikle særtilpasninger. Generelle forbedringer kan foreslås som pull requests til upstream-repositoryet.
+Mal for ett privat konfigurasjons- og state-repo til en selvstendig
+[Watchtower-fork](https://github.com/marmarmar-code/watchtower).
+Malen inneholder ingen programkode eller secrets.
 
 ## Start her
 
-For en ny installasjon, følg først [den samlede startprosedyren i Watchtower](https://github.com/marmarmar-code/watchtower/blob/main/FORKING.md). Den angir riktig rekkefølge fra fork til kontrollert første kjøring. Stegene nedenfor beskriver den private runtime-delen av samme oppsett.
+Følg **[den samlede installasjonsveiledningen](https://github.com/marmarmar-code/watchtower/blob/main/INSTALL.md)**.
+Den beskriver repoer, oppsettsveiviser, nøkler, kanal, baseline og automatisk kjøring.
+Bruk veiledningen i den versjonen av kodeforken du faktisk tar i bruk.
 
-Malen er laget for organisasjoner og brukere som vil følge offentlige kilder uten å legge hemmeligheter eller privat state i den offentlige koden. Du trenger bare å fylle inn kildene du faktisk vil følge.
-
-## 1. Opprett privat runtime
-
-Velg **Use this template** og opprett:
-
-```text
-<organisasjon>/watchtower-runtime
-```
-
-Sett repositoryet til **Private**. Ikke bruk vanlig fork av denne malen; en template gir en ren historikk.
-
-Standardnavnet `watchtower-runtime` gjør at Watchtower finner runtime automatisk når begge repositoryene har samme eier.
-
-Brukes et annet navn eller en annen eier, opprett denne Actions-variabelen i Watchtower-forken:
-
-```text
-WATCHTOWER_RUNTIME_REPOSITORY=<eier>/<runtime-repository>
-```
-
-En annen runtime-branch kan eventuelt angis med:
-
-```text
-WATCHTOWER_RUNTIME_REF=<branch>
-```
-
-Det er ikke nødvendig å redigere workflow-filen.
-
-## 2. Fork Watchtower
-
-Fork:
-
-```text
-marmarmar-code/watchtower
-```
-
-til kontoen eller organisasjonen som skal kjøre installasjonen.
-
-Åpne deretter fanen **Actions** i forken og aktiver workflows dersom GitHub ber om det. Planlagte workflows i nye forker kan være deaktivert til dette er gjort.
-
-## 3. Opprett avgrenset deploy key
-
-Lag et eget SSH-nøkkelpar på en maskin du kontrollerer:
+1. Velg **Use this template** og opprett ditt eget **Private** repo.
+2. Fork Watchtower-koden. `link-github` i steg 4 setter runtime-koblingen.
+3. Klon begge repoene til separate kataloger. Fra kodekatalogen kjører du:
 
 ```bash
-ssh-keygen -t ed25519 \
-  -C "watchtower-runtime" \
-  -f watchtower-runtime-key \
-  -N ""
+python -m watchtower setup --runtime ../watchtower-runtime
 ```
 
-Dette lager:
+Veiviseren i Watchtower 0.5 lager et oppsett fra `general`, `finance` eller `health`.
+Den kan bevare den deaktiverte malen som `config/watchtower.before-setup.toml` før
+ny konfigurasjon skrives. Den avviser aktive oppsett og runtimes som allerede har state.
 
-```text
-watchtower-runtime-key.pub   offentlig nøkkel
-watchtower-runtime-key       privat nøkkel
+4. Etter at konfigurasjonen er lagret i det private repoet, kobler du repoene med
+   `link-github` fra kodekatalogen. Installer GitHub CLI og logg inn først:
+
+```bash
+python -m watchtower link-github --code-repo DIN_EIER/DIN_KODEFORK --runtime-repo DIN_EIER/DITT_RUNTIME_REPO
+python -m watchtower link-github --code-repo DIN_EIER/DIN_KODEFORK --runtime-repo DIN_EIER/DITT_RUNTIME_REPO --apply
 ```
 
-I det private runtime-repositoryet:
+Kontrollen er uten endringer til `--apply` brukes. Kommandoen lager egen nøkkel og
+setter runtime-variabler. Eksisterende koblinger overskrives ikke. Følg deretter
+installasjonsveiledningen for kanaltilgang og kontroll av installasjonen.
 
-1. Gå til **Settings → Deploy keys → Add deploy key**.
-2. Lim inn innholdet fra `watchtower-runtime-key.pub`.
-3. Aktiver **Allow write access**. Watchtower må kunne oppdatere `state/`.
+Du kan også redigere `config/watchtower.toml` manuelt. Alle eksempelkilder er
+fortsatt deaktivert. Erstatt aktuelle `REPLACE_ME`-verdier og aktiver bare de
+kildene du vil følge. En aktiv kilde med plassholdere blir avvist.
 
-I den offentlige Watchtower-forken:
+## Innhold og ansvar
 
-1. Gå til **Settings → Secrets and variables → Actions → Secrets**.
-2. Opprett secret `RUNTIME_DEPLOY_KEY`.
-3. Lim inn hele innholdet fra den private filen `watchtower-runtime-key`.
-4. Slett nøkkelfilene lokalt når oppsettet er verifisert, eller oppbevar dem sikkert dersom de skal kunne roteres senere.
+| Sted | Innhold |
+| --- | --- |
+| `config/watchtower.toml` | Privat konfigurasjon, virksomhetsliste og filtre |
+| `state/` | Baseline, deduplisering, status, leveringskø og privat varselhistorikk |
+| Actions Secrets i kodeforken | Deploy-nøkkel, webhook og eventuelle API-nøkler |
 
-Ikke gjenbruk denne deploy key-en til andre repositoryer.
+Malen leses bare ved opprettelse. Det skjer ingen automatisk oppdatering av denne
+runtimen fra malen eller upstream. Behold én runtime per installasjon.
 
-## 4. Konfigurer varsling
+Avtal en driftsansvarlig, en redaksjonell ansvarlig og en stedfortreder lokalt.
+Det følger ingen sentral drift, SLA eller plikt for upstream til å feilsøke oppsettet.
+Avklar bruksrett med rettighetshaver mens Watchtower mangler formell programvarelisens.
 
-Microsoft Teams er standard i denne malen:
+## Videre veiledning
 
-```toml
-[notifications]
-provider = "teams"
-```
+- [Kilder og filtrering](https://github.com/marmarmar-code/watchtower/blob/main/README.md)
+- [Gjenbruk av virksomhetslister](https://github.com/marmarmar-code/watchtower/blob/main/ENTITIES.md)
+- [Drift, dekningsstatus og varselhistorikk](https://github.com/marmarmar-code/watchtower/blob/main/OPERATIONS.md)
+- [Oppgraderinger og kompatibilitet](https://github.com/marmarmar-code/watchtower/blob/main/UPGRADING.md)
 
-Opprett en Teams Workflow med webhook-trigger for ønsket kanal. Legg webhook-adressen i Watchtower-forken som GitHub Actions-secret:
+Konfigurasjonsformatet er 1. Eldre oppsett uten eksplisitt versjonsfelt kan fortsatt
+leses. Nye `entity_refs` krever Watchtower 0.5; legg dem ikke til før kodeforken er oppgradert.
 
-```text
-TEAMS_WEBHOOK_URL
-```
-
-For Slack, endre runtime-konfigurasjonen til:
-
-```toml
-[notifications]
-provider = "slack"
-```
-
-og opprett:
-
-```text
-SLACK_WEBHOOK_URL
-```
-
-Webhook-adressen skal aldri limes inn i `config/watchtower.toml`.
-
-## 5. Konfigurer kilder
-
-Rediger:
-
-```text
-config/watchtower.toml
-```
-
-Alle eksempelkilder er deaktivert. For hver kilde som skal brukes:
-
-1. Erstatt alle relevante `REPLACE_ME`-verdier.
-2. Kontroller kilde-spesifikke innstillinger.
-3. Sett `enabled = true`.
-
-Minst én kilde må være aktiv før `dry-run` eller ordinær `run`. Watchtower avviser en overvåkingskjøring uten aktive kilder, slik at et uferdig oppsett ikke ser vellykket ut.
-
-En aktiv kilde med gjenværende `REPLACE_ME` blir avvist av valideringen. En aktiv kilde må også ha positive filterregler, eller eksplisitt:
-
-```toml
-[source.filter]
-match_all = true
-```
-
-`match_all` bør bare brukes når adapteren allerede er begrenset av en konkret liste, slik som BRREGs `companies`.
-
-### Kildetyper
-
-```text
-regjeringen
-stortinget
-konkurransetilsynet
-euronext
-doffin
-hoyesterett
-brreg
-rss
-ssb
-stotte
-finanstilsynet_short_sale
-patentstyret
-```
-
-Doffin krever Actions-secret:
-
-```text
-DOFFIN_API_KEY
-```
-
-Doffin bruker bare det offisielle API-endepunktet; et egendefinert endepunkt kan ikke konfigureres.
-
-BRREG krever ingen API-nøkkel. Legg organisasjonsnumrene i `companies` og velg hendelser gjennom `events`.
-
-Støtteregisteret krever ingen API-nøkkel. Avgrens til valgte mottakere, støttegivere, næringer, regioner eller datoer før kilden aktiveres.
-
-Finanstilsynets shortsalgregister krever ingen API-nøkkel. Legg inn ISIN-er i `isins`, eller eksakte utstedernavn i `issuers`.
-
-Patentstyret krever en gratis abonnementnøkkel fra utviklerportalen. Lagre den i den offentlige Watchtower-forken som Actions-secret:
-
-```text
-PATENTSTYRET_API_KEY
-```
-
-Patentstyret-adapteren er en prøveversjon til den er kontrollert mot ekte data med installasjonens egen nøkkel.
-
-RSS-profiler gjør flere offisielle feeder tilgjengelige uten at installasjonseieren må finne og vedlikeholde URL-ene selv. Watchtower leveres med profiler for Politiloggen, Finanstilsynet, Mattilsynet og Norges Banks pressemeldinger. Kommandoen `python -m watchtower list-rss-profiles` viser profilnavnene som kan brukes i konfigurasjonen.
-
-SSB krever ingen API-nøkkel. Legg femsifrede tabellnumre i `tables`. Watchtower henter bare den lille tabellbeskrivelsen og varsler om nye perioder eller strukturendringer; den laster ikke ned selve statistikkdataene.
-
-## 6. Verifiser oppsettet
-
-Kjør workflowen manuelt fra **Actions → Watchtower → Run workflow**.
-
-### A. `test-notification`
-
-Denne sender et representativt testvarsel med tittel, endringsdetalj, metadata og lenkeknapp gjennom provideren som er valgt i runtime.
-
-Testen er først godkjent når:
-
-- meldingen faktisk vises i valgt kanal;
-- lenken kan åpnes;
-- ved Teams viser den tilhørende Workflow-kjøringen `Succeeded`.
-
-En grønn GitHub-jobb alene er ikke tilstrekkelig dersom meldingen ikke vises.
-
-### B. `dry-run`
-
-Denne validerer runtime og henter aktive kilder uten å sende ordinære varsler eller skrive ny state.
-
-Godkjenn bare kjøringen dersom alle aktive kilder fullfører uten feil.
-
-### C. `run`
-
-Første ordinære kjøring etablerer en stille baseline. Det skal normalt ikke komme kildevarsler. Workflowen skal committe JSON-state til `state/` i det private repositoryet.
-
-Kontroller:
-
-- at workflowen er grønn;
-- at `state/` inneholder filer for de aktive kildene;
-- at committen er skrevet av `watchtower[bot]`;
-- at neste uendrede kjøring ikke sender varsler.
-
-## 7. Normal drift
-
-Scheduleren starter monitor-workflowen på `main` omtrent hvert femte minutt. GitHubs cron-trigger er en reserve som kan starte schedulerkjeden på nytt. Monitoren sjekker likevel hver kilde bare når kildeintervallet er utløpt (standard er 60 minutter). Dette gir én felles tidsplan, mens hyppigere eller sjeldnere kilder kan velge sitt eget `interval_minutes` (minimum 5).
-
-Kontroller minst én naturlig `schedule`-hendelse før installasjonen regnes som operativ. En scheduler-kjøring som står som kansellert er ikke alene en driftsfeil; kontroller om monitoren ble startet og om en nyere scheduler overtok kjeden.
-
-State må forbli privat og versjonert. Ikke slett state for en aktiv kilde uten å forstå at neste ordinære kjøring da oppretter en ny stille baseline.
-
-Hver kjøring viser en samlet, anonymisert kildestatus i oppsummeringen på GitHub. Den røper ikke private kilde-ID-er eller filterverdier. Detaljene for den enkelte kilde forblir i den private runtime-en.
-
-## Sikkerhetsregler
-
-- Produksjonsruntime skal være privat.
-- Secrets skal bare ligge i GitHub Actions Secrets.
-- Ikke commit `.env`, private nøkler, sertifikater eller webhook-adresser.
-- Ikke kopier state eller konfigurasjon fra en annen installasjon.
-- Kontroller repositoryets synlighet før reelle overvåkingsverdier legges inn.
-- Roter straks en credential som ved en feil er publisert; sletting av filen alene er ikke tilstrekkelig.
-
-## Oppdatering av fork
-
-Hver fork velger selv når den synkroniseres med upstream. Hold egne kodeendringer små og isolerte for å redusere konflikter.
-
-Produksjonsworkflowen sjekker med vilje ut kode fra `main`, slik at en utestet branch ikke får tilgang til produksjonssecrets og privat runtime. Oppgrader derfor slik:
-
-1. Synkroniser upstream-endringen i en branch.
-2. La branch-CI fullføre og gjennomgå diffen.
-3. Merge først når CI er grønn.
-4. Kjør `dry-run` manuelt fra `main` umiddelbart etter merge.
-5. Kjør deretter `run` og kontroller state og varsling.
-
-Ved en større oppgradering kan den planlagte workflowen deaktiveres midlertidig mens kontrollene gjennomføres.
-
-## Anbefalt beskyttelse
-
-Beskytt `main` i Watchtower-forken med:
-
-- pull request før merge;
-- grønn CI som krav;
-- blokkering av force push;
-- blokkering av sletting av branch.
-
-Dette hindrer at en utestet kodeendring får tilgang til produksjonssecrets og privat runtime ved neste planlagte kjøring.
-
-## Lisensstatus
-
-Det er foreløpig ikke lagt inn en programvarelisens for Watchtower. Den offentlige koden og denne malen gir derfor ikke i seg selv generell tillatelse til bruk, endring eller videre distribusjon.
-
-En ny installasjon må ha uttrykkelig tillatelse fra rettighetshaveren fram til rettighetshaver og lisens er formelt avklart.
+0.5-malen inneholder også et deaktivert eksempel for `finanstilsynet_registry`.
+Fullfør en eventuell ventende leveringskø før retur til en eldre kodeversjon.
