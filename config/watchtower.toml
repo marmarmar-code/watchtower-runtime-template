@@ -211,3 +211,17 @@ exclude_any = []
 # Definer [[entity]] med id, name, aliases og gyldig orgnr/ISIN når aktuelt.
 # Bruk filter.entity_refs for navn og kildeblokkens entity_refs for registre.
 # Se ENTITIES.md i kodeforken. Ingen ekte virksomheter skal legges i denne offentlige malen.
+
+# Finanstilsynets virksomhetsregister krever Watchtower 0.5.
+# Eksplisitt utvalg; første henting per virksomhet er stille baseline.
+[[source]]
+id = "financial_registry"
+kind = "finanstilsynet_registry"
+label = "Finanstilsynets virksomhetsregister"
+enabled = false
+interval_minutes = 1440
+alert_on_update = true
+companies = ["REPLACE_ME_ORGNR"]
+max_pages = 3
+[source.filter]
+match_all = true

@@ -11,7 +11,7 @@ Den beskriver repoer, oppsettsveiviser, nøkler, kanal, baseline og automatisk k
 Bruk veiledningen i den versjonen av kodeforken du faktisk tar i bruk.
 
 1. Velg **Use this template** og opprett ditt eget **Private** repo.
-2. Fork Watchtower-koden og sett `WATCHTOWER_RUNTIME_REPOSITORY` til dette repoet.
+2. Fork Watchtower-koden. `link-github` i steg 4 setter runtime-koblingen.
 3. Klon begge repoene til separate kataloger. Fra kodekatalogen kjører du:
 
 ```bash
@@ -22,6 +22,18 @@ Veiviseren i Watchtower 0.5 lager et oppsett fra `general`, `finance` eller `hea
 Den kan bevare den deaktiverte malen som `config/watchtower.before-setup.toml` før
 ny konfigurasjon skrives. Den avviser aktive oppsett og runtimes som allerede har state.
 
+4. Etter at konfigurasjonen er lagret i det private repoet, kobler du repoene med
+   `link-github` fra kodekatalogen. Installer GitHub CLI og logg inn først:
+
+```bash
+python -m watchtower link-github --code-repo DIN_EIER/DIN_KODEFORK --runtime-repo DIN_EIER/DITT_RUNTIME_REPO
+python -m watchtower link-github --code-repo DIN_EIER/DIN_KODEFORK --runtime-repo DIN_EIER/DITT_RUNTIME_REPO --apply
+```
+
+Kontrollen er uten endringer til `--apply` brukes. Kommandoen lager egen nøkkel og
+setter runtime-variabler. Eksisterende koblinger overskrives ikke. Følg deretter
+installasjonsveiledningen for kanaltilgang og kontroll av installasjonen.
+
 Du kan også redigere `config/watchtower.toml` manuelt. Alle eksempelkilder er
 fortsatt deaktivert. Erstatt aktuelle `REPLACE_ME`-verdier og aktiver bare de
 kildene du vil følge. En aktiv kilde med plassholdere blir avvist.
@@ -31,7 +43,7 @@ kildene du vil følge. En aktiv kilde med plassholdere blir avvist.
 | Sted | Innhold |
 | --- | --- |
 | `config/watchtower.toml` | Privat konfigurasjon, virksomhetsliste og filtre |
-| `state/` | Baseline, deduplisering, status og privat varselhistorikk |
+| `state/` | Baseline, deduplisering, status, leveringskø og privat varselhistorikk |
 | Actions Secrets i kodeforken | Deploy-nøkkel, webhook og eventuelle API-nøkler |
 
 Malen leses bare ved opprettelse. Det skjer ingen automatisk oppdatering av denne
@@ -50,3 +62,6 @@ Avklar bruksrett med rettighetshaver mens Watchtower mangler formell programvare
 
 Konfigurasjonsformatet er 1. Eldre oppsett uten eksplisitt versjonsfelt kan fortsatt
 leses. Nye `entity_refs` krever Watchtower 0.5; legg dem ikke til før kodeforken er oppgradert.
+
+0.5-malen inneholder også et deaktivert eksempel for `finanstilsynet_registry`.
+Fullfør en eventuell ventende leveringskø før retur til en eldre kodeversjon.
