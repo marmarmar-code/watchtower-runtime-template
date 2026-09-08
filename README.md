@@ -18,7 +18,8 @@ Bruk veiledningen i den versjonen av kodeforken du faktisk tar i bruk.
 python -m watchtower setup --runtime ../watchtower-runtime
 ```
 
-Veiviseren i Watchtower 0.5 lager et oppsett fra `general`, `finance` eller `health`.
+Veiviseren i Watchtower 0.6 lager et oppsett fra `general`, `finance`, `health`,
+`digital`, `property` eller `retail`.
 Den kan bevare den deaktiverte malen som `config/watchtower.before-setup.toml` før
 ny konfigurasjon skrives. Den avviser aktive oppsett og runtimes som allerede har state.
 
@@ -65,3 +66,26 @@ leses. Nye `entity_refs` krever Watchtower 0.5; legg dem ikke til før kodeforke
 
 0.5-malen inneholder også et deaktivert eksempel for `finanstilsynet_registry`.
 Fullfør en eventuell ventende leveringskø før retur til en eldre kodeversjon.
+
+## Utvid oppsettet med hendelser og tall
+
+Watchtower 0.6 har ti ferdige oppskrifter for blant annet styringsrente, valuta,
+SSB-tall, alvorlige farevarsler, Riksrevisjonens rapporter og Nkom. Fra kodekatalogen:
+
+```bash
+python -m watchtower list-recipes
+python -m watchtower add-source --runtime ../watchtower-runtime --recipe nb_policy_rate
+python -m watchtower add-source --runtime ../watchtower-runtime --recipe nb_policy_rate --apply
+python -m watchtower preview --config ../watchtower-runtime/config/watchtower.toml --state-dir ../watchtower-runtime/state --source nb_policy_rate
+```
+
+Første `add-source` viser forslaget; `--apply` legger det til lokalt. Commit og push
+fra din private runtime etter kontroll. Eksisterende konfigurasjon og state bevares.
+`preview` sender ingenting og skriver ikke state. Første ordinære henting av en
+ny kilde etablerer stille baseline.
+
+Malen har deaktiverte eksempler for egne JSON-utvalg, nettsidetekst og SSB-tall.
+Disse krever kodeversjon 0.6. CSV og dokumentlister er også tilgjengelig via
+oppskrifter og egen konfigurasjon. Se
+[ferdige kildeoppsett](https://github.com/marmarmar-code/watchtower/blob/main/RECIPES.md) og
+[endringsregler](https://github.com/marmarmar-code/watchtower/blob/main/EVENT_MONITORING.md).
