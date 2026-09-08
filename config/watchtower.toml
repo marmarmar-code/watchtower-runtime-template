@@ -1,4 +1,8 @@
+# Bruk gjerne Watchtower 0.5-veiviseren fra kodeforken før du redigerer malen.
+# Oppskrift: https://github.com/marmarmar-code/watchtower/blob/main/INSTALL.md
+
 [general]
+config_version = 1
 max_seen_per_source = 3000
 
 # Scheduleren starter monitor-workflowen omtrent hvert femte minutt. En kilde
@@ -96,6 +100,7 @@ enabled = false
 interval_minutes = 60
 alert_on_update = true
 page_size = 100
+# Et fullt siste resultatside-vindu markeres i status. Avgrens søket ved behov.
 max_pages = 1
 search_queries = [
   "REPLACE_ME_BUYER_OR_TOPIC_1",
@@ -200,3 +205,9 @@ tables = ["REPLACE_ME_SSB_TABLE_1"]
 # Tabellisten avgrenser kilden, så alle endringer i disse tabellene er relevante.
 match_all = true
 exclude_any = []
+
+
+# Felles virksomhetsliste er valgfri og krever Watchtower 0.5.
+# Definer [[entity]] med id, name, aliases og gyldig orgnr/ISIN når aktuelt.
+# Bruk filter.entity_refs for navn og kildeblokkens entity_refs for registre.
+# Se ENTITIES.md i kodeforken. Ingen ekte virksomheter skal legges i denne offentlige malen.
